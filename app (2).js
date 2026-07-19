@@ -6,7 +6,7 @@
    Leave it as null to run in DEMO MODE with sample data
    (nothing is sent anywhere, everything lives in the browser).
    ========================================================= */
-const API_URL = null; // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
+const API_URL = "https://script.google.com/macros/s/AKfycbxx7xdBN8QE0qF6JLqXADVBkQYh6UCSBzmBZG273UI8O6S6X0CUVJ6ijhqE4rVaqQTUfw/exec";
 
 const OVERTIME_GRACE_HOURS = 2;
 const OVERTIME_RATE_PER_HOUR_THB = 100;

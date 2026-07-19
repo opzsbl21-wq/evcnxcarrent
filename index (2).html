@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EV CNX VIENTIANE</title>
+<meta name="theme-color" content="#0A0A0A">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0A;
+  --surface:#141414;
+  --surface-2:#1C1C1C;
+  --border:#262626;
+  --border-soft:#1E1E1E;
+  --text:#F2F2ED;
+  --text-dim:#9C9C95;
+  --text-faint:#6B6B65;
+  --green:#22C55E;
+  --green-deep:#16803D;
+  --green-glow: rgba(34,197,94,0.28);
+  --gold:#C9A253;
+  --danger:#E24B4A;
+  --amber:#EF9F27;
+  --radius:14px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;}
+body{min-height:100vh; padding-bottom:env(safe-area-inset-bottom);}
+.mono{font-family:'JetBrains Mono',monospace;}
+::selection{background:var(--green-glow);}
+a{color:inherit;}
+button{font-family:inherit;}
+input,select{font-family:inherit;}
+
+/* ---------- layout shells ---------- */
+.screen{display:none; min-height:100vh;}
+.screen.active{display:block;}
+.app-shell{max-width:520px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column;}
+.app-shell.wide{max-width:960px;}
+
+/* ---------- login ---------- */
+#login-screen{display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px;}
+.login-card{width:100%; max-width:380px;}
+.brand{text-align:center; margin-bottom:40px;}
+.brand-mark{font-size:34px; font-weight:800; letter-spacing:1px;}
+.brand-mark span{background:linear-gradient(135deg,#5EE87A,#16803D); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.brand-sub{color:var(--text-dim); font-size:12px; letter-spacing:4px; margin-top:6px; text-transform:uppercase;}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.3px;}
+.field input, .field select{width:100%; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:15px; outline:none; transition:border-color .15s;}
+.field input:focus, .field select:focus{border-color:var(--green);}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px 18px; border-radius:var(--radius-sm); border:none; font-size:15px; font-weight:700; cursor:pointer; transition:opacity .15s, transform .1s;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:linear-gradient(135deg,#3CDB6C,#16803D); color:#04220F;}
+.btn-primary:hover{opacity:0.92;}
+.btn-ghost{background:transparent; border:1px solid var(--border); color:var(--text);}
+.btn-danger{background:var(--danger); color:#fff;}
+.btn-sm{padding:9px 14px; font-size:13px; width:auto;}
+.login-error{color:var(--danger); font-size:13px; margin-top:10px; min-height:16px;}
+.demo-note{margin-top:28px; text-align:center; font-size:12px; color:var(--text-faint); line-height:1.6;}
+
+/* ---------- topbar ---------- */
+.topbar{position:sticky; top:0; z-index:20; background:rgba(10,10,10,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-soft); padding:16px 20px; display:flex; align-items:center; justify-content:space-between;}
+.topbar-title{font-size:15px; font-weight:700;}
+.topbar-title .role-tag{font-size:10px; color:var(--green); border:1px solid var(--green-deep); border-radius:20px; padding:2px 8px; margin-left:8px; text-transform:uppercase; letter-spacing:0.5px; vertical-align:middle;}
+.icon-btn{background:var(--surface); border:1px solid var(--border); color:var(--text-dim); width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+
+.content{padding:20px; flex:1;}
+.content-wide{padding:28px 32px; flex:1;}
+
+/* ---------- cards & grid ---------- */
+.card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+@media(max-width:480px){.grid-3{grid-template-columns:1fr 1fr;}}
+
+.stat-card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:16px; position:relative; overflow:hidden;}
+.stat-card .stat-label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;}
+.stat-card .stat-value{font-size:22px; font-weight:700;}
+.stat-card .stat-value.mono{font-size:20px;}
+.stat-card .stat-accent{position:absolute; right:-10px; top:-10px; width:70px; height:70px; border-radius:50%; background:var(--green-glow); filter:blur(18px);}
+
+.section-title{font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; margin:26px 0 12px;}
+.section-title:first-child{margin-top:0;}
+
+/* currency toggle */
+.currency-toggle{display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px;}
+.currency-toggle button{border:none; background:transparent; color:var(--text-dim); font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; cursor:pointer;}
+.currency-toggle button.active{background:var(--green); color:#04220F;}
+
+/* list rows */
+.row-list .row-item{display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border-soft);}
+.row-list .row-item:last-child{border-bottom:none;}
+.row-item-main{font-size:14px; font-weight:600;}
+.row-item-sub{font-size:12px; color:var(--text-dim); margin-top:2px;}
+.badge{font-size:10px; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:0.4px; font-weight:700;}
+.badge-available{background:rgba(34,197,94,0.15); color:var(--green);}
+.badge-rented{background:rgba(239,159,39,0.15); color:var(--amber);}
+.badge-paid{background:rgba(34,197,94,0.15); color:var(--green);}
+.badge-pending{background:rgba(226,75,74,0.15); color:var(--danger);}
+
+/* table */
+.table-wrap{overflow-x:auto;}
+table{width:100%; border-collapse:collapse; font-size:13px;}
+th{text-align:left; color:var(--text-dim); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.4px; padding:10px 12px; border-bottom:1px solid var(--border);}
+td{padding:12px; border-bottom:1px solid var(--border-soft); vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+
+/* bottom nav */
+.bottom-nav{position:sticky; bottom:0; background:rgba(10,10,10,0.95); backdrop-filter:blur(10px); border-top:1px solid var(--border-soft); display:flex; padding:8px 12px calc(8px + env(safe-area-inset-bottom));}
+.nav-item{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 4px; border-radius:10px; cursor:pointer; color:var(--text-faint); font-size:10px; font-weight:600;}
+.nav-item.active{color:var(--green);}
+.nav-item svg{width:20px; height:20px;}
+
+/* modal */
+.modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:flex-end; justify-content:center; z-index:50;}
+.modal-overlay.active{display:flex;}
+.modal-sheet{background:var(--surface); width:100%; max-width:520px; border-radius:20px 20px 0 0; padding:24px; max-height:88vh; overflow-y:auto; border:1px solid var(--border);}
+.modal-title{font-size:17px; font-weight:700; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;}
+.upload-box{border:1.5px dashed var(--border); border-radius:var(--radius-sm); padding:20px; text-align:center; color:var(--text-dim); font-size:13px; cursor:pointer; position:relative; overflow:hidden;}
+.upload-box img{max-width:100%; max-height:140px; border-radius:8px; margin-top:8px;}
+.upload-box input{position:absolute; inset:0; opacity:0; cursor:pointer;}
+
+/* segmented tabs (used for pro tables etc) */
+.tabs{display:flex; gap:6px; margin-bottom:16px; overflow-x:auto;}
+.tab{padding:8px 16px; font-size:12px; font-weight:700; border-radius:20px; background:var(--surface); border:1px solid var(--border); color:var(--text-dim); cursor:pointer; white-space:nowrap;}
+.tab.active{background:var(--green); color:#04220F; border-color:var(--green);}
+
+.empty-state{text-align:center; padding:40px 20px; color:var(--text-faint); font-size:13px;}
+
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:12px 20px; border-radius:20px; font-size:13px; z-index:100; opacity:0; transition:opacity .2s, bottom .2s; pointer-events:none;}
+.toast.show{opacity:1; bottom:34px;}
+
+.divider-glow{height:1px; background:linear-gradient(90deg, transparent, var(--green), transparent); opacity:0.5; margin:22px 0;}
+
+.gold-tag{color:var(--gold); font-size:11px; letter-spacing:0.5px; text-transform:uppercase; font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ LOGIN ============ -->
+<div class="screen active" id="login-screen">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-mark">EV<span>&nbsp;CNX</span></div>
+      <div class="brand-sub">Vientiane &middot; Fleet Portal</div>
+    </div>
+    <div class="field">
+      <label>อีเมลพนักงาน</label>
+      <input type="email" id="login-email" placeholder="name@evcnx.la" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>รหัส PIN</label>
+      <input type="password" id="login-pin" placeholder="&bull;&bull;&bull;&bull;" inputmode="numeric" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" onclick="handleLogin()">เข้าสู่ระบบ</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="demo-note">โหมดทดลอง (Demo): admin@evcnx.la / staff@evcnx.la / account@evcnx.la / owner@evcnx.la<br>PIN ใดก็ได้ 4 หลัก — ยังไม่ได้เชื่อมต่อ Google Sheets จริง</div>
+  </div>
+</div>
+
+<!-- ============ ADMIN ============ -->
+<div class="screen" id="admin-screen">
+  <div class="app-shell wide">
+    <div class="topbar">
+      <div class="topbar-title">EV CNX <span class="role-tag">Admin</span></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="currency-toggle" id="admin-currency-toggle">
+          <button class="active" data-cur="THB">THB</button>
+          <button data-cur="LAK">LAK</button>
+        </div>
+        <button class="icon-btn" onclick="logout()" title="ออกจากระบบ">&#8594;</button>
+      </div>
+    </div>
+    <div class="content-wide">
+
+      <div class="tabs" id="admin-tabs">
+        <div class="tab active" data-tab="dashboard">แดชบอร์ด</div>
+        <div class="tab" data-tab="cars">รถทั้งหมด</div>
+        <div class="tab" data-tab="bookings">การจอง</div>
+        <div class="tab" data-tab="promos">โปรโมชั่น</div>
+        <div class="tab" data-tab="staff">พนักงาน</div>
+      </div>
+
+      <!-- dashboard tab -->
+      <div class="tab-panel" id="admin-panel-dashboard">
+        <div class="grid-3" id="admin-stats"></div>
+        <div class="section-title">การจองล่าสุด</div>
+        <div class="card row-list" id="admin-recent-bookings"></div>
+      </div>
+
+      <!-- cars tab -->
+      <div class="tab-panel" id="admin-panel-cars" style="display:none;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+          <button class="btn btn-primary btn-sm" onclick="openCarModal()">+ เพิ่มรถ</button>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>ทะเบียน</th><th>รุ่น</th><th>สถานะ</th><th>เลขไมล์</th><th>ราคา/วัน</th><th></th></tr></thead>
+            <tbody id="admin-cars-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- bookings tab -->
+      <div class="tab-panel" id="admin-panel-bookings" style="display:none;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+          <button class="btn btn-primary btn-sm" onclick="openBookingModal()">+ เพิ่มการจอง</button>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>รหัส</th><th>ลูกค้า</th><th>เบอร์โทร</th><th>รถ</th><th>รับรถ</th><th>คืนรถ</th><th>วัน</th><th>สถานะ</th><th>ยอดรวม</th></tr></thead>
+            <tbody id="admin-bookings-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- promos tab -->
+      <div class="tab-panel" id="admin-panel-promos" style="display:none;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+          <button class="btn btn-primary btn-sm" onclick="openPromoModal()">+ เพิ่มโปรโมชั่น</button>
+        </div>
+        <div class="card row-list" id="admin-promos-list"></div>
+      </div>
+
+      <!-- staff tab -->
+      <div class="tab-panel" id="admin-panel-staff" style="display:none;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+          <button class="btn btn-primary btn-sm" onclick="openStaffModal()">+ เพิ่มพนักงาน</button>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>ชื่อ</th><th>อีเมล</th><th>ตำแหน่ง</th></tr></thead>
+            <tbody id="admin-staff-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ FIELD STAFF ============ -->
+<div class="screen" id="field-screen">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-title">EV CNX <span class="role-tag">Field</span></div>
+      <button class="icon-btn" onclick="logout()">&#8594;</button>
+    </div>
+    <div class="content">
+      <div class="section-title">คิวงานวันนี้</div>
+      <div class="card row-list" id="field-jobs-list"></div>
+      <div class="section-title">รถทั้งหมด &middot; สถานะ</div>
+      <div class="card row-list" id="field-cars-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACCOUNTING ============ -->
+<div class="screen" id="account-screen">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-title">EV CNX <span class="role-tag">บัญชี</span></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="currency-toggle" id="account-currency-toggle">
+          <button class="active" data-cur="THB">THB</button>
+          <button data-cur="LAK">LAK</button>
+        </div>
+        <button class="icon-btn" onclick="logout()">&#8594;</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-3" id="account-stats"></div>
+      <div class="section-title">รายการชำระเงินจากลูกค้า</div>
+      <div class="card row-list" id="account-payments-list"></div>
+      <div class="section-title">สถานะเงินประกัน</div>
+      <div class="card row-list" id="account-deposit-list"></div>
+      <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>รายรับ-รายจ่ายของบริษัท</span>
+        <button class="btn btn-primary btn-sm" onclick="openTransactionModal()">+ เพิ่มรายการ</button>
+      </div>
+      <div class="card row-list" id="account-transactions-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OWNER ============ -->
+<div class="screen" id="owner-screen">
+  <div class="app-shell wide">
+    <div class="topbar">
+      <div class="topbar-title">EV CNX <span class="role-tag">Owner</span></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="currency-toggle" id="owner-currency-toggle">
+          <button class="active" data-cur="THB">THB</button>
+          <button data-cur="LAK">LAK</button>
+        </div>
+        <button class="icon-btn" onclick="logout()">&#8594;</button>
+      </div>
+    </div>
+    <div class="content-wide">
+      <div class="grid-3" id="owner-stats"></div>
+
+      <div class="section-title">รายรับ-รายจ่ายรายวัน (7 วันล่าสุด)</div>
+      <div class="card table-wrap">
+        <table>
+          <thead><tr><th>วันที่</th><th>รายรับ</th><th>รายจ่าย</th><th>กำไร/ขาดทุน</th></tr></thead>
+          <tbody id="owner-daily-table"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title">ภาพรวมบริษัท</div>
+      <div class="grid-3" id="owner-overview"></div>
+
+      <div class="section-title">ข้อมูลลูกค้า</div>
+      <div class="card table-wrap">
+        <table>
+          <thead><tr><th>ลูกค้า</th><th>เบอร์โทร</th><th>รถที่เช่า</th><th>จำนวนวัน</th><th>ยอดรวม</th></tr></thead>
+          <tbody id="owner-customers-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<!-- check-in/out modal (field staff) -->
+<div class="modal-overlay" id="checkio-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span id="checkio-title">รับรถ</span><span style="cursor:pointer;color:var(--text-dim);" onclick="closeModal('checkio-modal')">&times;</span></div>
+    <div class="field"><label>เลขไมล์ปัจจุบัน</label><input type="number" id="checkio-mileage" placeholder="เช่น 15234"></div>
+    <div class="field"><label>สถานะรถ</label>
+      <select id="checkio-status"><option value="ว่าง">ว่าง</option><option value="ถูกเช่า">ถูกเช่า</option></select>
+    </div>
+    <div class="field"><label>รูปถ่ายรถ</label>
+      <div class="upload-box" id="checkio-upload-box">
+        <span id="checkio-upload-label">แตะเพื่อถ่าย/เลือกรูป</span>
+        <input type="file" accept="image/*" capture="environment" onchange="handlePhotoPreview(event,'checkio')">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="submitCheckIO()" style="margin-top:8px;">บันทึก</button>
+  </div>
+</div>
+
+<!-- car modal (admin) -->
+<div class="modal-overlay" id="car-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span>เพิ่ม/แก้ไขรถ</span><span style="cursor:pointer;color:var(--text-dim);" onclick="closeModal('car-modal')">&times;</span></div>
+    <div class="field"><label>ทะเบียนรถ</label><input type="text" id="car-plate"></div>
+    <div class="field"><label>รุ่น</label><input type="text" id="car-model"></div>
+    <div class="field"><label>ราคาเช่าต่อวัน (THB)</label><input type="number" id="car-price"></div>
+    <div class="field"><label>สถานะ</label>
+      <select id="car-status"><option value="ว่าง">ว่าง</option><option value="ถูกเช่า">ถูกเช่า</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="submitCar()">บันทึก</button>
+  </div>
+</div>
+
+<!-- promo modal (admin) -->
+<div class="modal-overlay" id="promo-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span>ตั้งค่าโปรโมชั่น</span><span style="cursor:pointer;color:var(--text-dim);" onclick="closeModal('promo-modal')">&times;</span></div>
+    <div class="field"><label>จำนวนวันขั้นต่ำ</label><input type="number" id="promo-mindays" placeholder="เช่น 3"></div>
+    <div class="field"><label>ประเภทส่วนลด</label>
+      <select id="promo-type"><option value="percent">เปอร์เซ็นต์ (%)</option><option value="fixed">ราคาต่อวันใหม่ (THB)</option></select>
+    </div>
+    <div class="field"><label>ค่า</label><input type="number" id="promo-value" placeholder="เช่น 10 หรือ 1600"></div>
+    <div class="field"><label>ใช้กับรถ</label>
+      <select id="promo-scope"><option value="ALL">ทุกคัน</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="submitPromo()">บันทึก</button>
+  </div>
+</div>
+
+<!-- booking modal (admin) -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span>เพิ่มการจอง</span><span style="cursor:pointer;color:var(--text-dim);" onclick="closeModal('booking-modal')">&times;</span></div>
+    <div class="field"><label>ชื่อลูกค้า</label><input type="text" id="booking-customer"></div>
+    <div class="field"><label>เบอร์โทรลูกค้า</label><input type="tel" id="booking-phone" placeholder="020 XXXX XXXX"></div>
+    <div class="field"><label>รถที่เช่า</label><select id="booking-car"></select></div>
+    <div class="field"><label>วันเวลารับรถ</label><input type="datetime-local" id="booking-pickup"></div>
+    <div class="field"><label>วันเวลาคืนรถ (กำหนด)</label><input type="datetime-local" id="booking-return"></div>
+    <div class="field"><label>พนักงานผู้รับผิดชอบ</label><select id="booking-staff"></select></div>
+    <div class="field"><label>เงินประกัน (THB)</label><input type="number" id="booking-deposit" placeholder="เช่น 3000"></div>
+    <div class="card mono" id="booking-preview" style="font-size:13px; color:var(--text-dim); margin-bottom:14px;"></div>
+    <button class="btn btn-primary" onclick="submitBooking()">บันทึกการจอง</button>
+  </div>
+</div>
+
+<!-- transaction modal (accounting) -->
+<div class="modal-overlay" id="transaction-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span>เพิ่มรายรับ-รายจ่าย</span><span style="cursor:pointer;color:var(--text-dim);" onclick="closeModal('transaction-modal')">&times;</span></div>
+    <div class="field"><label>ประเภท</label>
+      <select id="tx-type"><option value="income">รายรับ</option><option value="expense">รายจ่าย</option></select>
+    </div>
+    <div class="field"><label>หมวดหมู่</label><input type="text" id="tx-category" placeholder="เช่น ค่าเช่าสำนักงาน, ค่าซ่อมรถ, รายรับอื่นๆ"></div>
+    <div class="field"><label>รายละเอียด</label><input type="text" id="tx-desc"></div>
+    <div class="field"><label>จำนวนเงิน (THB)</label><input type="number" id="tx-amount"></div>
+    <div class="field"><label>วันที่</label><input type="date" id="tx-date"></div>
+    <button class="btn btn-primary" onclick="submitTransaction()">บันทึก</button>
+  </div>
+</div>
+
+<!-- staff modal (admin) -->
+<div class="modal-overlay" id="staff-modal">
+  <div class="modal-sheet">
+    <div class="modal-title"><span>เพิ่มพนักงาน</span><span style="cursor:pointer;color:var(--text-dim);" onclick="closeModal('staff-modal')">&times;</span></div>
+    <div class="field"><label>ชื่อ</label><input type="text" id="staff-name"></div>
+    <div class="field"><label>อีเมล</label><input type="email" id="staff-email"></div>
+    <div class="field"><label>PIN เริ่มต้น</label><input type="text" id="staff-pin" placeholder="4 หลัก"></div>
+    <div class="field"><label>ตำแหน่ง</label>
+      <select id="staff-role"><option value="admin">Admin</option><option value="field">พนักงานรับ-ส่งรถ</option><option value="accounting">ฝ่ายบัญชี</option><option value="owner">Owner (เจ้าของ)</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="submitStaff()">บันทึก</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
